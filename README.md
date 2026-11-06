@@ -252,5 +252,5 @@ This project is developed for **CV Hackathon – Problem Statement 4 (P4): Edge-
 ---
 
 <p align="center">
-  <strong>EdgeDepth · Reconstructing depth while preserving structure.</strong>
+  <strong>EdgeDepth · Reconstructing depth while preserving structure</strong>
 </p>
