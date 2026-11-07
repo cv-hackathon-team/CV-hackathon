@@ -320,6 +320,36 @@ CV-hackathon/
 
 This is a suggested structure; folders can be added as the corresponding components are implemented. Large datasets and model checkpoints should generally be managed outside ordinary Git commits, with download instructions or suitable storage links documented instead.
 
+## Ablation Study
+
+The ablation study examines the role of individual components in the DEPTHGUARD 360 framework. Each component addresses a different challenge in depth reconstruction.
+
+| Component | Purpose | Expected Impact When Removed |
+|---|---|---|
+| Confidence-aware Reconstruction | Identifies reliable and unreliable depth regions | More errors in noisy and missing-depth regions |
+| Occlusion-aware Refinement | Preserves foreground-background depth separation | Increased depth blending near object boundaries |
+| Texture-aware Boundary Detection | Distinguishes texture edges from actual depth boundaries | More false boundaries in highly textured regions |
+| Geometric Refinement | Maintains local surface consistency | Less consistent reconstruction across planar surfaces |
+| Classical Refinement | Improves depth maps using edge-aware filtering | Increased noise and reduced local refinement |
+| Temporal Depth Refinement | Uses information from consecutive frames | Less effective recovery when individual frames contain missing depth |
+| **Complete DEPTHGUARD 360** | **Combines the implemented reconstruction components** | **Provides the reference configuration for comparison** |
+
+
+## Failure-Case Analysis
+
+| Failure Case | Cause | Effect on Reconstruction | Possible Improvement |
+|---|---|---|---|
+| Large missing-depth regions | Insufficient depth information | Inaccurate depth estimation | Improve RGB-guided reconstruction |
+| Thin objects | Limited depth samples | Loss of fine structures | Boundary-aware refinement |
+| Similar-looking surfaces at different depths | Similar RGB appearance | Foreground-background blending | Occlusion-aware processing |
+| Strong texture patterns | High RGB gradients | False depth boundaries | Texture-aware edge detection |
+| Reflective or transparent surfaces | Unreliable sensor readings | Incorrect depth values | Confidence-based filtering |
+| Fast camera or object motion | Frame misalignment | Temporal reconstruction errors | Motion-aware frame alignment |
+| Complex curved surfaces | Limitations of planar assumptions | Over-smoothing or geometric distortion | Adaptive geometric constraints |
+
+## Observations
+
+DEPTHGUARD 360 combines confidence estimation, boundary preservation, RGB guidance, and geometric refinement to address different depth reconstruction challenges. Its performance may still decrease in regions with very sparse measurements, reflective surfaces, thin structures, and complex object boundaries. These cases highlight areas that require further testing and improvement.
 ## Getting Started
 
 ### 1. Clone the repository
