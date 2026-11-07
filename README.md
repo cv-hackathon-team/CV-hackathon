@@ -1,4 +1,4 @@
-# EdgeDepth
+# DEPTHGUARD 360
 ### Edge-Preserving Depth Map Upsampling & Refinement
 
 <p align="center">
@@ -10,7 +10,7 @@
 
 ## Overview
 
-**EdgeDepth** is a computer-vision project focused on depth-map upsampling and refinement. The goal is to reconstruct high-resolution depth representations from sparse, noisy, or low-resolution depth inputs without blurring important object boundaries or introducing texture-copying artifacts.
+**DEPTHGUARD 360** is a computer-vision project focused on depth-map upsampling and refinement. The goal is to reconstruct high-resolution depth representations from sparse, noisy, or low-resolution depth inputs without blurring important object boundaries or introducing texture-copying artifacts.
 
 When an RGB guidance image is available, the system uses its colour and structural cues to guide refinement while ensuring that RGB texture is not blindly copied into the depth map.
 
@@ -100,18 +100,127 @@ The exact order and fusion strategy will be selected through experiments. The hy
 ## System Workflow
 
 ```mermaid
-flowchart TD
-    A[Input: Low-resolution / sparse depth map] --> B[Preprocessing]
-    C[Optional RGB guidance image] --> B
-    B --> D[Interpolation Baselines]
-    B --> E[Classical Edge-aware Refinement]
-    B --> F[Deep Learning Model]
-    D --> G[Hybrid Fusion and Boundary Refinement]
-    E --> G
-    F --> G
-    G --> H[High-resolution Depth Map]
-    H --> I[Evaluation and Visualisation]
-    I --> J[RMSE · MAE · PSNR · SSIM · Edge Quality · Latency]
+graph LR
+    subgraph INPUT["INPUT DATA"]
+        RGB["RGB Image<br/>High-resolution<br/>Colour & Texture"]
+        DEPTH["Low-Res Depth Map<br/>Sparse/Noisy<br/>LiDAR Sensor"]
+        MASK["Depth Validity Mask<br/>Valid/Missing Pixels"]
+        TEMPORAL["Optional Temporal Frames<br/>Prev/Next RGB & Depth<br/>Video Mode Only"]
+        style TEMPORAL stroke:#999,stroke-dasharray: 5 5
+    end
+    
+    subgraph PREPROC["DATA PREPROCESSING & ALIGNMENT"]
+        ALIGN["Spatial Alignment<br/>RGB-Depth Registration"]
+        RESIZE["Image Resizing<br/>Scale Preparation"]
+        NORM["Depth Normalization<br/>Validity Mask Gen"]
+        QUALITY["Quality Checks<br/>Corruption Generation"]
+        SCALES["Upsampling Factors<br/>2× | 4× | 8×"]
+        style SCALES stroke:#fb923c,fill:#fff7ed
+    end
+    
+    subgraph MODULES["SIX INTELLIGENT MODULES"]
+        M1["DEPTH RESCUE<br/>Depth Damage Diagnosis<br/>Identifies Missing/Noise<br/>Boundary Corruption"]
+        M2["DEPTHGUARD<br/>Confidence-Aware Analysis<br/>Pixel-Level Uncertainty<br/>Reliability Map"]
+        M3["OCCLUSION-X<br/>Object Relationships<br/>Foreground/Background<br/>Boundary Prevention"]
+        M4["TEXTURE TRAP<br/>Texture vs Depth Edge<br/>Prevents False Boundaries<br/>Pattern Artifacts"]
+        M5["TEMPORAL DEPTH REPAIR<br/>Video Frame Recovery<br/>Motion Estimation<br/>Temporal Alignment"]
+        M6["GEOMETRY FIRST<br/>Geometric Consistency<br/>Surface Normals<br/>Plane Fitting Analysis"]
+        style M1 stroke:#818cf8,fill:#eef2ff
+        style M2 stroke:#2dd4bf,fill:#f0fdfa
+        style M3 stroke:#a78bfa,fill:#f5f3ff
+        style M4 stroke:#fb923c,fill:#fff7ed
+        style M5 stroke:#38bdf8,fill:#f0f9ff
+        style M5 stroke:#999,stroke-dasharray: 5 5
+        style M6 stroke:#4ade80,fill:#f0fdf4
+    end
+    
+    subgraph ENGINE["HYBRID DEPTH RECONSTRUCTION ENGINE"]
+        CLASSICAL["Classical Methods<br/>Bilinear Interpolation<br/>Bilateral Upsampling<br/>Guided Filtering"]
+        DEEP["Deep Learning<br/>Shared RGB-Depth Features<br/>Multi-Scale Fusion<br/>U-Net Reconstruction"]
+        FUSION["Adaptive Fusion<br/>Confidence-Aware<br/>Boundary-Guided<br/>Measurement Preservation"]
+        style CLASSICAL stroke:#f87171,fill:#fef2f2
+        style DEEP stroke:#a78bfa,fill:#f5f3ff
+        style FUSION stroke:#facc15,fill:#fefce8
+    end
+    
+    subgraph REFINE["BOUNDARY-AWARE & GEOMETRIC REFINEMENT"]
+        DISCON["Discontinuity Preservation"]
+        EDGE["Edge-Aware Refinement"]
+        NOISE["Noise Reduction<br/>Hole Filling"]
+        GEOM["Surface-Normal Consistency<br/>Geometric Refinement"]
+        QCHECK["Quality Checks"]
+    end
+    
+    subgraph OUTPUT["FINAL OUTPUTS"]
+        DEPTHOUT["High-Resolution<br/>Refined Depth Map"]
+        CONFOUT["Pixel-Level<br/>Confidence Map"]
+        BOUNDOUT["Depth Boundary<br/>Occlusion Map"]
+        REPORT["Quality Report<br/>RMSE | MAE | PSNR | SSIM<br/>Edge Preservation<br/>Latency | Memory"]
+        style REPORT stroke:#fb7185,fill:#fff1f2
+    end
+    
+    subgraph EVAL["EVALUATION & APPLICATION"]
+        DATASETS["Benchmark Datasets<br/>KITTI Depth Completion<br/>NYU Depth V2<br/>Middlebury Stereo"]
+        EXPERIMENTS["Experiments<br/>2× | 4× | 8× Upsampling<br/>Classical vs DL vs Hybrid<br/>Baseline Comparison"]
+        DEMO["Streamlit<br/>Demonstration App"]
+        style DEMO stroke:#2dd4bf,fill:#f0fdfa
+    end
+    
+    RGB --> ALIGN
+    DEPTH --> ALIGN
+    MASK --> ALIGN
+    TEMPORAL -.-> ALIGN
+    ALIGN --> RESIZE
+    RESIZE --> NORM
+    NORM --> QUALITY
+    QUALITY --> SCALES
+    
+    SCALES --> M1
+    SCALES --> M2
+    SCALES --> M3
+    SCALES --> M4
+    SCALES --> M5
+    SCALES --> M6
+    
+    M1 -->|Damage Diagnosis| FUSION
+    M2 -->|Confidence Map| FUSION
+    M3 -->|Occlusion Guidance| FUSION
+    M4 -->|Boundary Guidance| FUSION
+    M5 -.->|Temporal Recovery| FUSION
+    M6 -->|Geometric Guidance| FUSION
+    
+    CLASSICAL --> FUSION
+    DEEP --> FUSION
+    FUSION --> DISCON
+    
+    DISCON --> EDGE
+    EDGE --> NOISE
+    NOISE --> GEOM
+    GEOM --> QCHECK
+    
+    QCHECK --> DEPTHOUT
+    QCHECK --> CONFOUT
+    QCHECK --> BOUNDOUT
+    QCHECK --> REPORT
+    
+    DEPTHOUT --> DATASETS
+    CONFOUT --> EXPERIMENTS
+    BOUNDOUT --> DEMO
+    REPORT --> EXPERIMENTS
+    
+    classDef inputStyle stroke:#818cf8,fill:#eef2ff
+    classDef processStyle stroke:#2dd4bf,fill:#f0fdfa
+    classDef outputStyle stroke:#fb7185,fill:#fff1f2
+    classDef modulesStyle stroke:#a78bfa,fill:#f5f3ff
+    classDef engineStyle stroke:#facc15,fill:#fefce8
+    
+    class INPUT inputStyle
+    class PREPROC processStyle
+    class REFINE processStyle
+    class OUTPUT outputStyle
+    class EVAL processStyle
+    class ENGINE engineStyle
+
 ```
 
 ## Advanced Requirements
