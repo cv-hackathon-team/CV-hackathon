@@ -62,5 +62,7 @@ typing_extensions==4.16.0
 tzdata==2026.6
 urllib3==2.8.0
 uvicorn==0.54.0
-websockets==17.4
+uvicorn==0.54.0
 fastapi
+websockets==17.4
+
