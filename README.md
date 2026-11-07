@@ -16,7 +16,7 @@ When an RGB guidance image is available, the system uses its colour and structur
 
 The proposed solution combines **classical computer vision**, **deep learning**, and a **hybrid reconstruction pipeline**. It is designed to support multiple upsampling scales and to be evaluated on depth accuracy, edge preservation, and runtime.
 
-DEPTHGUARD 360 URL - https://dhanush1756--trident-depth-t69-web.us-east.modal.run/
+DEPTHGUARD 360 URL - https://cv-hackathon-production-25bb.up.railway.app/
 
 > **Project status:** Problem definition and proposed technical approach. Implementation details, datasets, trained weights, quantitative results, and deployment links should be added as they become available. No performance results are claimed in this README.
 
