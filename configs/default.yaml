@@ -1,0 +1,125 @@
+# DepthGuard360 default configuration.
+# All relative paths resolve against the project root (the parent of configs/),
+# not the current working directory.
+
+paths:
+  dataset_root: ../DEPTHGUARD360_DATASETS
+  outputs_dir: outputs
+  checkpoints_dir: checkpoints
+
+# Dataset locations, relative to paths.dataset_root.
+datasets:
+  nyu:
+    mat_file: 02_NYU_DEPTH_V2/labeled/nyu_depth_v2_labeled.mat
+    splits_file: 02_NYU_DEPTH_V2/labeled/splits.mat
+    val_fraction: 0.1   # taken from TRAIN only, whole scenes at a time
+    split_seed: 42
+  middlebury:
+    root: 03_MIDDLEBURY
+    expected_scenes: 10
+    downscale: 4        # full-resolution scenes are about 2800x1900
+  kitti:
+    # TODO: KITTI is not downloaded; confirm this path when it is.
+    root: kitti_depth_completion/val_selection_cropped
+
+scale_factors: [2, 4, 8]
+
+corruption:
+  modes: [lr, noisy, holes, sparse, boundary, mixed]
+  severity: medium      # low | medium | high
+  seed: 42
+  # "mixed" applies boundary, holes, sparse and noise at the selected severity.
+  levels:
+    low:
+      noise_rel_sigma: 0.005    # noise std as a fraction of depth
+      hole_ratio: 0.05          # fraction of LR pixels removed as blobs
+      hole_blob_scale: 0.02     # blob size as a fraction of the shorter image side
+      sparse_keep_percent: 50
+      boundary_band_px: 1       # edge dilation radius, in LR pixels
+      boundary_drop_prob: 0.3
+      boundary_edge_threshold: 0.05
+    medium:
+      noise_rel_sigma: 0.01
+      hole_ratio: 0.1
+      hole_blob_scale: 0.03
+      sparse_keep_percent: 25
+      boundary_band_px: 1
+      boundary_drop_prob: 0.5
+      boundary_edge_threshold: 0.05
+    high:
+      noise_rel_sigma: 0.03
+      hole_ratio: 0.25
+      hole_blob_scale: 0.05
+      sparse_keep_percent: 10
+      boundary_band_px: 2
+      boundary_drop_prob: 0.8
+      boundary_edge_threshold: 0.05
+
+# Filter sizes grow with the scale factor. Tuned on NYU val at x4 for rmse_m: scripts/tune_classical.py
+classical:
+  joint_bilateral:
+    sigma_spatial_per_scale: 0.5
+    sigma_range: 0.1
+  guided_filter:
+    radius_per_scale: 0.25
+    epsilon: 0.0001
+
+model:
+  channels: [32, 64, 128, 256]
+  blocks_per_level: 1
+
+# Hybrid refinement. Thresholds are defaults, not tuned.
+hybrid:
+  flags:                     # the steps the final "hybrid" method runs
+    fusion: false            # off: raised RMSE at x4 and x8 in the val ablation
+    keep_measured: true
+    boundary_refine: true
+  low_confidence: 0.5        # fusion only: below this, blend the network with the guided filter
+  high_confidence: 0.8       # at or above this, keep valid input depth
+  boundary_probability: 0.5  # predicted boundary probability that defines the band
+  boundary_band_px: 2        # dilation of the predicted boundary
+  boundary_sigma_spatial: 2.0
+  boundary_sigma_range: 0.1
+
+# Diagnosis thresholds, chosen by scripts/calibrate_diagnosis.py on NYU val at medium severity.
+diagnosis:
+  clean_missing_percent: 0.5  # at or below this, no pixels count as missing
+  sparse_missing_percent: 30  # above this, the map is sparse
+  noise_level: 0.0065         # relative noise above this counts as noisy
+  hole_blob_ratio: 0.4        # share of missing pixels in blobs that means holes, not boundary gaps
+
+train:
+  seed: 42
+  epochs: 60
+  batch_size: 8
+  learning_rate: 0.0002
+  weight_decay: 0.0001
+  grad_clip_norm: 1.0
+  crop_size: [256, 256]
+  num_workers: 4
+  early_stopping_patience: 8
+  smoke_images: 50
+  smoke_val_images: 10
+  smoke_epochs: 2
+  boundary_edge_threshold: 0.05   # relative depth jump that makes a boundary label
+  laplace_reference_m: 0.02       # Laplace scale b = reference * exp(log_variance)
+  loss_weights:
+    depth: 1.0
+    gradient: 0.5
+    boundary: 0.2
+
+
+evaluation:
+  methods:
+    classical: [nearest, bilinear, bicubic, joint_bilateral, guided_filter]
+    dl: [dl]
+    hybrid: [hybrid]
+    final: [dl, hybrid]
+    ablation: [dl, hybrid, hybrid_with_fusion, hybrid_no_keep, hybrid_no_boundary]
+  results_csv: outputs/results.csv
+  per_image_csv: outputs/results_per_image.csv
+  figures_dir: outputs/figures
+  boundary_tolerance_px: 2
+  boundary_edge_threshold: 0.05   # relative jump between neighbours that counts as an edge
+
+device: auto   # auto = cuda -> mps -> cpu

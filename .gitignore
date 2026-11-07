@@ -1,0 +1,37 @@
+# Datasets
+# Anchored to the repo root: an unanchored "datasets/" would also ignore src/datasets/.
+/datasets/
+/data/
+DEPTHGUARD360_DATASETS/
+*.mat
+*.pfm
+
+# Checkpoints and outputs
+checkpoints/
+outputs/
+*.pt
+*.pth
+*.ckpt
+
+# Secrets
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+
+.venv/
+.venv-win/
+.DS_Store
+__pycache__/
+.pytest_cache/

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DepthGuard 360</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- Nav -->
+  <header class="nav">
+    <div class="wrap nav-in">
+      <a href="#top" class="brand"><span class="dot"></span>DepthGuard 360</a>
+      <nav>
+        <a href="#studio">Studio</a>
+        <a href="#how">How it works</a>
+        <a href="#results">Results</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section id="top" class="hero">
+    <div class="wrap center">
+      <p class="eyebrow rise" style="--d:100ms">Edge-preserving depth reconstruction</p>
+      <h1>
+        <span class="rise" style="--d:220ms">Depth, rebuilt.</span>
+        <span class="rise muted" style="--d:360ms">Sharp edges. No smudges.</span>
+      </h1>
+      <p class="lede rise" style="--d:500ms">
+        Turn low-resolution, noisy, holey depth into clean high-resolution depth.
+        Object boundaries stay where they belong.
+      </p>
+      <div class="cta rise" style="--d:640ms">
+        <a href="#studio" class="btn btn-primary">Open the studio</a>
+        <a href="#how" class="btn btn-quiet">See how it works</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scroll-lit statement -->
+  <section class="wrap statement">
+    <p class="lit" data-lit>
+      Most methods blur the edge between a person and the wall behind them, inventing depth that isn't there.
+      DepthGuard 360 diagnoses what's broken, decides which edges are real, and picks front or back. It never blends.
+    </p>
+  </section>
+
+  <!-- Studio -->
+  <section id="studio" class="wrap section">
+    <h2 class="reveal">Studio</h2>
+    <p class="sub reveal">Upload an RGB image and its full-resolution depth. We damage it, rebuild it, and score every method against the truth.</p>
+
+    <div class="glass panel reveal">
+      <div class="controls">
+        <label class="drop" id="drop-rgb">
+          <input type="file" id="f-rgb" accept="image/*" hidden />
+          <span class="drop-t">RGB image</span><span class="drop-s" id="n-rgb">PNG or JPG</span>
+        </label>
+        <label class="drop" id="drop-depth">
+          <input type="file" id="f-depth" accept=".png,.npy,.pfm,.tif,.tiff" hidden />
+          <span class="drop-t">Depth map</span><span class="drop-s" id="n-depth">16-bit PNG, .npy or .pfm</span>
+        </label>
+        <div class="ctl">
+          <span class="ctl-l">Upsampling</span>
+          <div class="seg" id="scale">
+            <button data-v="2">2×</button><button data-v="4" class="on">4×</button><button data-v="8">8×</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <span class="ctl-l">Compare against</span>
+          <div class="chips" id="methods"></div>
+        </div>
+      </div>
+      <div class="run">
+        <button class="btn btn-primary" id="run">Reconstruct</button>
+        <button class="btn btn-quiet" id="sample">Try the sample scene</button>
+        <span class="status" id="status"></span>
+      </div>
+    </div>
+
+    <div id="out" class="out hidden">
+      <!-- Before/after wipe -->
+      <div class="glass panel">
+        <div class="row-h"><h3>Bicubic vs DepthGuard 360</h3><span class="hint">Drag to compare</span></div>
+        <div class="wipe" id="wipe">
+          <img id="w-a" alt="Bicubic result" /><img id="w-b" alt="DepthGuard 360 result" />
+          <div class="wipe-bar"><span></span></div>
+          <span class="tag l">Bicubic</span><span class="tag r">DepthGuard 360</span>
+        </div>
+      </div>
+
+      <div class="grid3" id="inputs"></div>
+
+      <div class="glass panel">
+        <div class="row-h"><h3>Scores</h3><span class="hint" id="model-badge"></span></div>
+        <p class="hint">Lower is better for errors, time and memory. Higher is better for PSNR, SSIM and Boundary F1
+          (share of depth edges in the right place, within 2 px).</p>
+        <div class="table-w"><table id="scores"></table></div>
+      </div>
+
+      <div class="glass panel">
+        <div class="row-h"><h3>Across upsampling factors</h3>
+          <button class="btn btn-quiet" id="sweep">Compare 2× / 4× / 8×</button></div>
+        <p class="hint" id="sweep-status">Runs the same scene at all three factors.</p>
+        <div class="table-w"><table id="sweep-table"></table></div>
+      </div>
+
+      <div class="grid3" id="results-grid"></div>
+
+      <div class="grid2" id="maps"></div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how" class="wrap section">
+    <h2 class="reveal">How it works</h2>
+    <p class="sub reveal">Six workers, one repair shop. Each tells the reconstruction engine where and how to fix.</p>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <!-- Results -->
+  <section id="results" class="wrap section">
+    <h2 class="reveal">Benchmark</h2>
+    <p class="sub reveal">Offline results from <code>outputs/results.csv</code>, run on unseen images.</p>
+    <div class="glass panel reveal"><div class="table-w"><table id="bench"></table></div></div>
+  </section>
+
+  <footer class="wrap foot">DepthGuard 360 · Problem Statement 4 · Edge-preserving depth upsampling</footer>
+  <script src="/app.js"></script>
+</body>
+</html>
