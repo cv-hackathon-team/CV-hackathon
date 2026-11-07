@@ -163,3 +163,4 @@ def index():
 
 
 app.mount("/", StaticFiles(directory=HERE / "web"), name="web")
+# Trigger Vercel deployment
