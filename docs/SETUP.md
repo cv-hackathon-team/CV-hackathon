@@ -29,6 +29,30 @@ the project root, so it sits next to the `depthguard360/` folder.
 | Middlebury 2014 | Scene folders with `im0.png`, `disp0.pfm` and `calib.txt` |
 | KITTI depth completion | `val_selection_cropped` (optional, skipped if missing) |
 
+### Download
+
+| Dataset | Where to get it | Put it in |
+| --- | --- | --- |
+| NYU Depth v2 (labeled, ~2.8 GB) | https://horatio.cs.nyu.edu/mit/silberman/nyu_depth_v2/nyu_depth_v2_labeled.mat | `02_NYU_DEPTH_V2/labeled/` |
+| NYU official split (`splits.mat`, 795 train / 654 test) | linked from https://cs.nyu.edu/~fergus/datasets/nyu_depth_v2.html | `02_NYU_DEPTH_V2/labeled/` |
+| Middlebury 2014, 10 `-perfect.zip` scenes | https://vision.middlebury.edu/stereo/data/scenes2014/zip/ | `03_MIDDLEBURY/<Scene>/` (drop the `-perfect` suffix) |
+| KITTI depth completion validation (~2 GB, needs registration) | https://www.cvlibs.net/datasets/kitti/eval_depth.php?benchmark=depth_completion | optional |
+
+Middlebury scenes: Adirondack, Jadeplant, Motorcycle, Piano, Pipes, Playroom, Playtable, Recycle, Shelves, Vintage.
+Middlebury is used only as an unseen test set; it gives disparity, which is converted to metric depth with `calib.txt`.
+
+Expected layout:
+
+```
+DEPTHGUARD360_DATASETS/
+  02_NYU_DEPTH_V2/labeled/nyu_depth_v2_labeled.mat
+  02_NYU_DEPTH_V2/labeled/splits.mat
+  03_MIDDLEBURY/Adirondack/{im0.png, disp0.pfm, calib.txt, ...}
+  03_MIDDLEBURY/...
+```
+
+Run `python scripts/check_datasets.py` to verify the files before training.
+
 ## Commands
 
 ```bash
