@@ -13,6 +13,7 @@ COPY src ./src
 COPY app ./app
 COPY scripts ./scripts
 COPY ui ./ui
+COPY outputs/results.csv ./outputs/results.csv
 COPY main.py .
 
 EXPOSE 8080
